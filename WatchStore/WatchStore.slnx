@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="../WatchStore.BL/WatchStore.BL.csproj" />
+  <Project Path="../WatchStore.DL/WatchStore.DL.csproj" />
+  <Project Path="../WatchStore.Models/WatchStore.Core.csproj" />
+  <Project Path="../WatchStore.Tests/WatchStore.Tests.csproj" Id="95d15c01-8ddf-4b70-addb-17f848a3724e" />
+  <Project Path="WatchStore.csproj" />
+</Solution>
