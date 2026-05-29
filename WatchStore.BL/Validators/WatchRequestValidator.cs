@@ -11,7 +11,7 @@ public class CreateWatchRequestValidator : AbstractValidator<CreateWatchRequest>
         RuleFor(x => x.Brand).NotEmpty().Length(2, 30);
         RuleFor(x => x.Model).NotEmpty().MaximumLength(50);
         RuleFor(x => x.Price).GreaterThan(0);
-        
+
         RuleFor(x => x.ProductionYear)
             .Must(y => y >= 1900 && y <= DateTime.Now.Year + 1)
             .WithMessage(x => $"Year must be between 1900 and {DateTime.Now.Year + 1}.");

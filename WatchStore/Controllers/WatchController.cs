@@ -9,49 +9,49 @@ public class WatchController(
     IValidator<UpdateWatchRequest> updateValidator) : ControllerBase
 {
     [HttpPost]
-    public IActionResult Create([FromBody] CreateWatchRequest request)
+    public async Task<IActionResult> Create([FromBody] CreateWatchRequest request)
     {
-        var validation = createValidator.Validate(request);
+        var validation = await createValidator.ValidateAsync(request);
         if (!validation.IsValid) return BadRequest(validation.Errors);
 
         var watchEntity = mapper.Map<Watch>(request);
-        var createdWatch = watchService.AddWatch(watchEntity);
+        var createdWatch = await watchService.AddWatchAsync(watchEntity);
 
         var response = mapper.Map<WatchResponse>(createdWatch);
         return CreatedAtAction(nameof(GetById), new { id = createdWatch.Id }, response);
     }
 
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
-        var watches = watchService.GetAllWatches();
+        var watches = await watchService.GetAllWatchesAsync();
         return Ok(mapper.Map<IEnumerable<WatchResponse>>(watches));
     }
 
     [HttpGet("{id:guid}")]
-    public IActionResult GetById(Guid id)
+    public async Task<IActionResult> GetById(Guid id)
     {
-        var watch = watchService.GetWatchById(id);
+        var watch = await watchService.GetWatchByIdAsync(id);
         if (watch is null) return NotFound();
 
         return Ok(mapper.Map<WatchResponse>(watch));
     }
 
     [HttpPut("{id:guid}")]
-    public IActionResult Update(Guid id, [FromBody] UpdateWatchRequest request)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateWatchRequest request)
     {
-        var validation = updateValidator.Validate(request);
+        var validation = await updateValidator.ValidateAsync(request);
         if (!validation.IsValid) return BadRequest(validation.Errors);
 
-        watchService.UpdateWatch(id, request);
+        await watchService.UpdateWatchAsync(id, request);
 
         return NoContent();
     }
 
     [HttpDelete("{id:guid}")]
-    public IActionResult Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
-        watchService.DeleteWatch(id);
+        await watchService.DeleteWatchAsync(id);
         return NoContent();
     }
 }

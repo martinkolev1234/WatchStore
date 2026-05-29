@@ -3,12 +3,12 @@ using WatchStore.BL.Services;
 using WatchStore.Core;
 using WatchStore.Core.Models;
 
-namespace WatchStore.Tests;
+namespace WatchStore.Tests.StoreServiceTests;
 
 public class WatchServiceTests
 {
     private readonly Mock<IWatchRepository> _mockRepo;
-    private readonly IWatchService _service;
+    private readonly WatchService _service;
 
     public WatchServiceTests()
     {
@@ -17,20 +17,20 @@ public class WatchServiceTests
     }
 
     [Fact]
-    public void UpdateWatch_Should_Throw_KeyNotFound_If_Id_Does_Not_Exist()
+    public async Task UpdateWatchAsync_Should_Throw_KeyNotFound_If_Id_Does_Not_Exist()
     {
         var watchId = Guid.NewGuid();
-        
-        _mockRepo.Setup(r => r.GetWatchById(watchId)).Returns((Watch?)null);
+
+        _mockRepo.Setup(r => r.GetWatchByIdAsync(watchId)).ReturnsAsync((Watch?)null);
 
         var updateRequest = new UpdateWatchRequest("Rolex", "Daytona", 20000, 2022, 40);
 
-        var ex = Assert.Throws<KeyNotFoundException>(() => _service.UpdateWatch(watchId, updateRequest));
+        var ex = await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.UpdateWatchAsync(watchId, updateRequest));
         Assert.Contains("not found", ex.Message);
     }
 
     [Fact]
-    public void UpdateWatch_Should_Update_Fields_Correctly()
+    public async Task UpdateWatchAsync_Should_Update_Fields_Correctly()
     {
         var watchId = Guid.NewGuid();
         var existingWatch = new Watch
@@ -40,15 +40,15 @@ public class WatchServiceTests
             Price = 100m
         };
 
-        _mockRepo.Setup(r => r.GetWatchById(watchId)).Returns(existingWatch);
+        _mockRepo.Setup(r => r.GetWatchByIdAsync(watchId)).ReturnsAsync(existingWatch);
 
         var updateRequest = new UpdateWatchRequest("NewBrand", "NewModel", 500m, 2023, 41);
 
-        _service.UpdateWatch(watchId, updateRequest);
+        await _service.UpdateWatchAsync(watchId, updateRequest);
 
-        Assert.Equal("NewBrand", existingWatch.Brand); 
-        Assert.Equal(500m, existingWatch.Price);       
+        Assert.Equal("NewBrand", existingWatch.Brand);
+        Assert.Equal(500m, existingWatch.Price);
 
-        _mockRepo.Verify(r => r.UpdateWatch(existingWatch), Times.Once);
+        _mockRepo.Verify(r => r.UpdateWatchAsync(existingWatch), Times.Once);
     }
 }

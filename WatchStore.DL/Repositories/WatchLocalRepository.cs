@@ -8,31 +8,36 @@ internal class WatchLocalRepository : IWatchRepository
 {
     private static readonly object _lock = new();
 
-    public void AddWatch(Watch watch)
+    public Task AddWatchAsync(Watch watch)
     {
         lock (_lock)
         {
             StaticDb.Watches.Add(watch);
         }
+        return Task.CompletedTask;
     }
 
-    public IEnumerable<Watch> GetAllWatches()
+    public Task<IEnumerable<Watch>> GetAllWatchesAsync()
     {
+        IEnumerable<Watch> result;
         lock (_lock)
         {
-            return StaticDb.Watches.ToList();
+            result = StaticDb.Watches.ToList();
         }
+        return Task.FromResult(result);
     }
 
-    public Watch? GetWatchById(Guid id)
+    public Task<Watch?> GetWatchByIdAsync(Guid id)
     {
+        Watch? result;
         lock (_lock)
         {
-            return StaticDb.Watches.FirstOrDefault(w => w.Id == id);
+            result = StaticDb.Watches.FirstOrDefault(w => w.Id == id);
         }
+        return Task.FromResult(result);
     }
 
-    public void UpdateWatch(Watch watch)
+    public Task UpdateWatchAsync(Watch watch)
     {
         lock (_lock)
         {
@@ -43,13 +48,15 @@ internal class WatchLocalRepository : IWatchRepository
                 StaticDb.Watches[index] = watch;
             }
         }
+        return Task.CompletedTask;
     }
 
-    public void DeleteWatch(Guid id)
+    public Task DeleteWatchAsync(Guid id)
     {
         lock (_lock)
         {
             StaticDb.Watches.RemoveAll(w => w.Id == id);
         }
+        return Task.CompletedTask;
     }
 }

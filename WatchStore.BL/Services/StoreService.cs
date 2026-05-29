@@ -1,17 +1,19 @@
 ﻿using Mapster;
 using WatchStore.Core;
 using WatchStore.Core.Models;
+using WatchStore.DL.Kafka.Messages;
 
 namespace WatchStore.BL.Services;
 
 public class StoreService(
     IClientRepository clientRepo,
-    IWatchRepository watchRepo) : IStoreService
+    IWatchRepository watchRepo,
+    IKafkaProducer<string, WatchTransactionMessage> kafkaProducer) : IStoreService
 {
-    public void PurchaseWatch(PurchaseRequest request)
+    public async Task PurchaseWatchAsync(PurchaseRequest request)
     {
-        var client = clientRepo.GetClientById(request.ClientId);
-        var watch = watchRepo.GetWatchById(request.WatchId);
+        var client = await clientRepo.GetClientByIdAsync(request.ClientId);
+        var watch = await watchRepo.GetWatchByIdAsync(request.WatchId);
 
         if (client is null) throw new KeyNotFoundException("Client not found.");
         if (watch is null) throw new KeyNotFoundException("Watch not found.");
@@ -25,31 +27,47 @@ public class StoreService(
 
         try
         {
-            clientRepo.UpdateClient(client);
+            await clientRepo.UpdateClientAsync(client);
+            await watchRepo.UpdateWatchAsync(watch);
 
-            watchRepo.UpdateWatch(watch);
+            var msg = new WatchTransactionMessage
+            {
+                WatchId = watch.Id,
+                ClientId = client.Id,
+                Price = watch.Price,
+                TransactionType = "Purchase"
+            };
+            await kafkaProducer.ProduceAsync(watch.Id.ToString(), msg);
         }
         catch (Exception)
         {
             client.Balance += watch.Price;
-            clientRepo.UpdateClient(client);
-
+            await clientRepo.UpdateClientAsync(client);
             throw new Exception("Transaction failed. Money refunded.");
         }
     }
 
-    public void SellWatchToStore(SellRequest request)
+    public async Task SellWatchToStoreAsync(SellRequest request)
     {
-        var client = clientRepo.GetClientById(request.ClientId);
+        var client = await clientRepo.GetClientByIdAsync(request.ClientId);
         if (client is null) throw new KeyNotFoundException("Client not found.");
 
         var newWatch = request.WatchDetails.Adapt<Watch>();
         newWatch.Id = Guid.NewGuid();
-        newWatch.OwnerId = null; 
+        newWatch.OwnerId = null;
 
         client.Balance += newWatch.Price;
 
-        watchRepo.AddWatch(newWatch);
-        clientRepo.UpdateClient(client);
+        await watchRepo.AddWatchAsync(newWatch);
+        await clientRepo.UpdateClientAsync(client);
+
+        var msg = new WatchTransactionMessage
+        {
+            WatchId = newWatch.Id,
+            ClientId = client.Id,
+            Price = newWatch.Price,
+            TransactionType = "SellToStore"
+        };
+        await kafkaProducer.ProduceAsync(newWatch.Id.ToString(), msg);
     }
 }

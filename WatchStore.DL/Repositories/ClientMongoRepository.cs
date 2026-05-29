@@ -28,35 +28,38 @@ internal class ClientRepository : IClientRepository
         }
     }
 
-    public Client? GetByEmail(string email)
+    public async Task<Client?> GetByEmailAsync(string email)
     {
-        return _collection.Find(c => c.Email == email).FirstOrDefault();
+        return await _collection.Find(c => c.Email == email).FirstOrDefaultAsync();
     }
 
-    public bool ExistsByEmail(string email)
+    public async Task<bool> ExistsByEmailAsync(string email)
     {
-        return _collection.Find(c => c.Email == email).Any();
+        return await _collection.Find(c => c.Email == email).AnyAsync();
     }
 
-    public void AddFunds(Guid clientId, decimal amount)
+    public async Task AddFundsAsync(Guid clientId, decimal amount)
     {
         var filter = Builders<Client>.Filter.Eq(c => c.Id, clientId);
         var update = Builders<Client>.Update.Inc(c => c.Balance, amount);
-        _collection.UpdateOne(filter, update);
+        await _collection.UpdateOneAsync(filter, update);
     }
 
-    public void AddClient(Client client)
-        => _collection.InsertOne(client);
+    public async Task AddClientAsync(Client client)
+        => await _collection.InsertOneAsync(client);
 
-    public IEnumerable<Client> GetAllClients()
-        => _collection.Find(_ => true).ToList();
+    public async Task<IEnumerable<Client>> GetAllClientsAsync()
+    {
+        var clients = await _collection.Find(_ => true).ToListAsync();
+        return clients;
+    }
 
-    public Client? GetClientById(Guid id)
-        => _collection.Find(c => c.Id == id).FirstOrDefault();
+    public async Task<Client?> GetClientByIdAsync(Guid id)
+        => await _collection.Find(c => c.Id == id).FirstOrDefaultAsync();
 
-    public void DeleteClient(Guid id)
-        => _collection.DeleteOne(c => c.Id == id);
+    public async Task DeleteClientAsync(Guid id)
+        => await _collection.DeleteOneAsync(c => c.Id == id);
 
-    public void UpdateClient(Client client)
-        => _collection.ReplaceOne(x => x.Id == client.Id, client);
+    public async Task UpdateClientAsync(Client client)
+        => await _collection.ReplaceOneAsync(x => x.Id == client.Id, client);
 }

@@ -20,7 +20,7 @@ public class ExceptionHandlingMiddleware(
         }
     }
 
-    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         context.Response.ContentType = "application/json";
 
@@ -49,6 +49,6 @@ public class ExceptionHandlingMiddleware(
         };
 
         var jsonResponse = JsonSerializer.Serialize(response);
-        return context.Response.WriteAsync(jsonResponse);
+        await context.Response.WriteAsync(jsonResponse);
     }
 }

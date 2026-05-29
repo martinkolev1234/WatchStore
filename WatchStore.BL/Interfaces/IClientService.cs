@@ -4,14 +4,10 @@ namespace WatchStore.BL.Services;
 
 public interface IClientService
 {
-    IEnumerable<Client> GetAllClients();
-    Client? GetClientById(Guid id);
-
-    Client AddClient(Client client);
-
-    void DeleteClient(Guid id);
-
-    void UpdateClient(Guid id, UpdateClientRequest request);
-
-    void AddFunds(Guid id, decimal amount);
+    Task<IEnumerable<Client>> GetAllClientsAsync();
+    Task<Client?> GetClientByIdAsync(Guid id);
+    Task<Client> AddClientAsync(Client client);
+    Task DeleteClientAsync(Guid id);
+    Task UpdateClientAsync(Guid id, UpdateClientRequest request);
+    Task AddFundsAsync(Guid id, decimal amount);
 }

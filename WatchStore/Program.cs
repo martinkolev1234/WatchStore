@@ -33,7 +33,7 @@ try
     builder.Services.AddScoped<IMongoDatabase>(sp =>
         sp.GetRequiredService<IMongoClient>().GetDatabase(databaseName));
 
-    builder.Services.AddDataLayer();
+    builder.Services.AddDataLayer(builder.Configuration);
     builder.Services.AddBusinessLayer();
 
     builder.Services.AddControllers();
@@ -68,7 +68,7 @@ try
     app.MapControllers();
     app.MapHealthChecks("/health");
 
-    app.Run();
+    await app.RunAsync();
 }
 catch (Exception ex)
 {
