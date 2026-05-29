@@ -9,30 +9,30 @@ public class ClientController(
     IValidator<UpdateClientRequest> updateValidator) : ControllerBase
 {
     [HttpPost]
-    public IActionResult Create([FromBody] CreateClientRequest request)
+    public async Task<IActionResult> Create([FromBody] CreateClientRequest request)
     {
-        var validation = createValidator.Validate(request);
+        var validation = await createValidator.ValidateAsync(request);
         if (!validation.IsValid) return BadRequest(validation.Errors);
 
         var clientEntity = mapper.Map<Client>(request);
 
-        var createdClient = clientService.AddClient(clientEntity);
+        var createdClient = await clientService.AddClientAsync(clientEntity);
 
         var response = mapper.Map<ClientResponse>(createdClient);
         return CreatedAtAction(nameof(GetById), new { id = createdClient.Id }, response);
     }
 
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
-        var clients = clientService.GetAllClients();
+        var clients = await clientService.GetAllClientsAsync();
         return Ok(mapper.Map<IEnumerable<ClientResponse>>(clients));
     }
 
     [HttpGet("{id:guid}")]
-    public IActionResult GetById(Guid id)
+    public async Task<IActionResult> GetById(Guid id)
     {
-        var client = clientService.GetClientById(id);
+        var client = await clientService.GetClientByIdAsync(id);
 
         if (client is null) return NotFound();
 
@@ -40,27 +40,27 @@ public class ClientController(
     }
 
     [HttpPut("{id:guid}")]
-    public IActionResult Update(Guid id, [FromBody] UpdateClientRequest request)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateClientRequest request)
     {
-        var validation = updateValidator.Validate(request);
+        var validation = await updateValidator.ValidateAsync(request);
         if (!validation.IsValid) return BadRequest(validation.Errors);
 
-        clientService.UpdateClient(id, request);
+        await clientService.UpdateClientAsync(id, request);
 
         return NoContent();
     }
 
     [HttpDelete("{id:guid}")]
-    public IActionResult Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
-        clientService.DeleteClient(id);
+        await clientService.DeleteClientAsync(id);
         return NoContent();
     }
 
     [HttpPost("add-funds")]
-    public IActionResult AddFunds([FromQuery] Guid clientId, [FromQuery] decimal amount)
+    public async Task<IActionResult> AddFunds([FromQuery] Guid clientId, [FromQuery] decimal amount)
     {
-        clientService.AddFunds(clientId, amount);
+        await clientService.AddFundsAsync(clientId, amount);
 
         return Ok("Funds added successfully");
     }

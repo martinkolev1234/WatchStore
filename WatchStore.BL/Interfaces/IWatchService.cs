@@ -5,9 +5,9 @@ namespace WatchStore.BL.Services;
 
 public interface IWatchService
 {
-    IEnumerable<Watch> GetAllWatches();
-    Watch? GetWatchById(Guid id);
-    Watch AddWatch(Watch watch); 
-    void DeleteWatch(Guid id);
-    void UpdateWatch(Guid id, UpdateWatchRequest request);
+    Task<IEnumerable<Watch>> GetAllWatchesAsync();
+    Task<Watch?> GetWatchByIdAsync(Guid id);
+    Task<Watch> AddWatchAsync(Watch watch);
+    Task DeleteWatchAsync(Guid id);
+    Task UpdateWatchAsync(Guid id, UpdateWatchRequest request);
 }

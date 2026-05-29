@@ -4,12 +4,12 @@ namespace WatchStore.BL.Services;
 
 public interface IClientRepository
 {
-    IEnumerable<Client> GetAllClients();
-    Client? GetClientById(Guid id);
-    void AddClient(Client client);
-    void DeleteClient(Guid id);
-    void UpdateClient(Client client);
-    Client? GetByEmail(string email);
-    bool ExistsByEmail(string email);
-    void AddFunds(Guid clientId, decimal amount);
+    Task<IEnumerable<Client>> GetAllClientsAsync();
+    Task<Client?> GetClientByIdAsync(Guid id);
+    Task AddClientAsync(Client client);
+    Task DeleteClientAsync(Guid id);
+    Task UpdateClientAsync(Client client);
+    Task<Client?> GetByEmailAsync(string email);
+    Task<bool> ExistsByEmailAsync(string email);
+    Task AddFundsAsync(Guid clientId, decimal amount);
 }

@@ -6,17 +6,17 @@ public class StoreController(
     IStoreService storeService) : ControllerBase
 {
     [HttpPost("purchase")]
-    public IActionResult Purchase([FromBody] PurchaseRequest request)
+    public async Task<IActionResult> Purchase([FromBody] PurchaseRequest request)
     {
-        storeService.PurchaseWatch(request);
+        await storeService.PurchaseWatchAsync(request);
 
         return Ok(new { message = "Purchase successful!" });
     }
 
     [HttpPost("sell")]
-    public IActionResult Sell([FromBody] SellRequest request)
+    public async Task<IActionResult> Sell([FromBody] SellRequest request)
     {
-        storeService.SellWatchToStore(request);
+        await storeService.SellWatchToStoreAsync(request);
 
         return Ok(new { message = "Watch sold to store successfully." });
     }

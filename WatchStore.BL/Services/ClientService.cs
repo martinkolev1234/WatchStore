@@ -3,52 +3,55 @@ using WatchStore.Core.Models;
 
 namespace WatchStore.BL.Services;
 
-internal class ClientService(IClientRepository clientRepository) : IClientService
+public class ClientService(IClientRepository clientRepository) : IClientService
 {
-    public IEnumerable<Client> GetAllClients() => clientRepository.GetAllClients();
+    public async Task<IEnumerable<Client>> GetAllClientsAsync() =>
+        await clientRepository.GetAllClientsAsync();
 
-    public Client? GetClientById(Guid id) => clientRepository.GetClientById(id);
+    public async Task<Client?> GetClientByIdAsync(Guid id) =>
+        await clientRepository.GetClientByIdAsync(id);
 
-    public Client AddClient(Client client)
+    public async Task<Client> AddClientAsync(Client client)
     {
         ArgumentNullException.ThrowIfNull(client);
 
-        if (clientRepository.ExistsByEmail(client.Email))
+        if (await clientRepository.ExistsByEmailAsync(client.Email))
         {
             throw new InvalidOperationException($"Client with email '{client.Email}' already exists.");
         }
 
         if (client.Id == Guid.Empty) client.Id = Guid.NewGuid();
 
-        clientRepository.AddClient(client);
+        await clientRepository.AddClientAsync(client);
         return client;
     }
 
-    public void DeleteClient(Guid id) => clientRepository.DeleteClient(id);
+    public async Task DeleteClientAsync(Guid id) =>
+        await clientRepository.DeleteClientAsync(id);
 
-    public void UpdateClient(Guid id, UpdateClientRequest request)
+    public async Task UpdateClientAsync(Guid id, UpdateClientRequest request)
     {
-        var existingClient = clientRepository.GetClientById(id);
+        var existingClient = await clientRepository.GetClientByIdAsync(id);
         if (existingClient is null)
             throw new KeyNotFoundException($"Client with ID {id} not found.");
 
         if (!existingClient.Email.Equals(request.Email, StringComparison.OrdinalIgnoreCase))
         {
-            if (clientRepository.ExistsByEmail(request.Email))
+            if (await clientRepository.ExistsByEmailAsync(request.Email))
                 throw new InvalidOperationException($"Email '{request.Email}' is already taken.");
         }
 
         request.Adapt(existingClient);
-        clientRepository.UpdateClient(existingClient);
+        await clientRepository.UpdateClientAsync(existingClient);
     }
 
-    public void AddFunds(Guid id, decimal amount)
+    public async Task AddFundsAsync(Guid id, decimal amount)
     {
         if (amount <= 0) throw new ArgumentException("Amount must be positive.");
 
-        var client = clientRepository.GetClientById(id);
+        var client = await clientRepository.GetClientByIdAsync(id);
         if (client is null) throw new KeyNotFoundException("Client not found");
 
-        clientRepository.AddFunds(id, amount);
+        await clientRepository.AddFundsAsync(id, amount);
     }
 }

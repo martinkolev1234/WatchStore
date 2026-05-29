@@ -4,7 +4,6 @@ namespace WatchStore.BL.Services;
 
 public interface IStoreService
 {
-    void PurchaseWatch(PurchaseRequest request);
-
-    void SellWatchToStore(SellRequest request);
+    Task PurchaseWatchAsync(PurchaseRequest request);
+    Task SellWatchToStoreAsync(SellRequest request);
 }

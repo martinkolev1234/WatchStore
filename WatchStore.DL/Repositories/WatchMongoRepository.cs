@@ -29,18 +29,21 @@ internal class WatchRepository : IWatchRepository
         }
     }
 
-    public void AddWatch(Watch watch)
-        => _collection.InsertOne(watch);
+    public async Task AddWatchAsync(Watch watch)
+        => await _collection.InsertOneAsync(watch);
 
-    public IEnumerable<Watch> GetAllWatches()
-        => _collection.Find(_ => true).ToList();
+    public async Task<IEnumerable<Watch>> GetAllWatchesAsync()
+    {
+        var watches = await _collection.Find(_ => true).ToListAsync();
+        return watches;
+    }
 
-    public Watch? GetWatchById(Guid id)
-        => _collection.Find(w => w.Id == id).FirstOrDefault();
+    public async Task<Watch?> GetWatchByIdAsync(Guid id)
+        => await _collection.Find(w => w.Id == id).FirstOrDefaultAsync();
 
-    public void DeleteWatch(Guid id)
-        => _collection.DeleteOne(w => w.Id == id);
+    public async Task DeleteWatchAsync(Guid id)
+        => await _collection.DeleteOneAsync(w => w.Id == id);
 
-    public void UpdateWatch(Watch watch)
-        => _collection.ReplaceOne(w => w.Id == watch.Id, watch);
+    public async Task UpdateWatchAsync(Watch watch)
+        => await _collection.ReplaceOneAsync(w => w.Id == watch.Id, watch);
 }

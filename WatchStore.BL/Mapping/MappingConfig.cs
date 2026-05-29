@@ -10,13 +10,13 @@ public class MappingConfig : IRegister
     public void Register(TypeAdapterConfig config)
     {
         config.NewConfig<CreateClientRequest, Client>()
-            .Ignore(dest => dest.Id)    
-            .Map(dest => dest.Name, src => src.Name.Trim()); 
+            .Ignore(dest => dest.Id)
+            .Map(dest => dest.Name, src => src.Name.Trim());
 
         config.NewConfig<Client, ClientResponse>();
 
         config.NewConfig<CreateWatchRequest, Watch>()
-            .Ignore(dest => dest.Id);   
+            .Ignore(dest => dest.Id);
 
         config.NewConfig<Watch, WatchResponse>();
     }

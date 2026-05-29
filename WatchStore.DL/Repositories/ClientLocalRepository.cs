@@ -8,23 +8,27 @@ internal class ClientLocalRepository : IClientRepository
 {
     private static readonly object _lock = new();
 
-    public Client? GetByEmail(string email)
+    public Task<Client?> GetByEmailAsync(string email)
     {
+        Client? result;
         lock (_lock)
         {
-            return StaticDb.Clients.FirstOrDefault(c => c.Email == email);
+            result = StaticDb.Clients.FirstOrDefault(c => c.Email == email);
         }
+        return Task.FromResult(result);
     }
 
-    public bool ExistsByEmail(string email)
+    public Task<bool> ExistsByEmailAsync(string email)
     {
+        bool exists;
         lock (_lock)
         {
-            return StaticDb.Clients.Any(c => c.Email == email);
+            exists = StaticDb.Clients.Any(c => c.Email == email);
         }
+        return Task.FromResult(exists);
     }
 
-    public void AddFunds(Guid clientId, decimal amount)
+    public Task AddFundsAsync(Guid clientId, decimal amount)
     {
         lock (_lock)
         {
@@ -34,41 +38,48 @@ internal class ClientLocalRepository : IClientRepository
                 client.Balance += amount;
             }
         }
+        return Task.CompletedTask;
     }
 
-    public void AddClient(Client client)
+    public Task AddClientAsync(Client client)
     {
         lock (_lock)
         {
             StaticDb.Clients.Add(client);
         }
+        return Task.CompletedTask;
     }
 
-    public void DeleteClient(Guid id)
+    public Task DeleteClientAsync(Guid id)
     {
         lock (_lock)
         {
             StaticDb.Clients.RemoveAll(x => x.Id == id);
         }
+        return Task.CompletedTask;
     }
 
-    public IEnumerable<Client> GetAllClients()
+    public Task<IEnumerable<Client>> GetAllClientsAsync()
     {
+        IEnumerable<Client> result;
         lock (_lock)
         {
-            return StaticDb.Clients.ToList();
+            result = StaticDb.Clients.ToList();
         }
+        return Task.FromResult(result);
     }
 
-    public Client? GetClientById(Guid id)
+    public Task<Client?> GetClientByIdAsync(Guid id)
     {
+        Client? result;
         lock (_lock)
         {
-            return StaticDb.Clients.FirstOrDefault(x => x.Id == id);
+            result = StaticDb.Clients.FirstOrDefault(x => x.Id == id);
         }
+        return Task.FromResult(result);
     }
 
-    public void UpdateClient(Client client)
+    public Task UpdateClientAsync(Client client)
     {
         lock (_lock)
         {
@@ -78,5 +89,6 @@ internal class ClientLocalRepository : IClientRepository
                 StaticDb.Clients[index] = client;
             }
         }
+        return Task.CompletedTask;
     }
 }
